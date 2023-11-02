@@ -1,0 +1,2 @@
+recursive-include src/bin *
+recursive-exclude src/bin */*.zip

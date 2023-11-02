@@ -1,0 +1,21 @@
+[project]
+name = "idrpred"
+version = "1.0.0"
+description = "A consensus-based predictor of intrinsically disordered regions in proteins."
+readme = "README.md"
+license = {file = "LICENSE.md"}
+authors = [
+  {name = "Matthias Blum", email = "mblum@ebi.ac.uk"},
+]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+idrpred = "idrpred.idrpred:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,282 @@
+[
+  {
+    "runtime": 16550.21091,
+    "cputime": 228896,
+    "maxmem": 389.8359375,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 16899.928513,
+    "cputime": 229854,
+    "maxmem": 343.94921875,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 16927.477979,
+    "cputime": 228208,
+    "maxmem": 400.4453125,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 16726.535528,
+    "cputime": 226753,
+    "maxmem": 395.125,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 16093.810356,
+    "cputime": 221785,
+    "maxmem": 377.21875,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 16875.788256,
+    "cputime": 230191,
+    "maxmem": 395.53125,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 23819.336125,
+    "cputime": 249473,
+    "maxmem": 437.1953125,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 16744.951636,
+    "cputime": 228029,
+    "maxmem": 332.91015625,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 17347.292693,
+    "cputime": 237583,
+    "maxmem": 393.56640625,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 22314.152888,
+    "cputime": 254029,
+    "maxmem": 307.4453125,
+    "application": "idrpred",
+    "threads": 16
+  },
+  {
+    "runtime": 16400.017038,
+    "cputime": 220388,
+    "maxmem": 426.5859375,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 19942.437343,
+    "cputime": 224742,
+    "maxmem": 459.765625,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 16828.324442,
+    "cputime": 225306,
+    "maxmem": 353.2734375,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 16739.926083,
+    "cputime": 224579,
+    "maxmem": 481.203125,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 16546.202374,
+    "cputime": 225742,
+    "maxmem": 433.7890625,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 19675.101825,
+    "cputime": 224924,
+    "maxmem": 384.4296875,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 16921.047519,
+    "cputime": 225207,
+    "maxmem": 370.4921875,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 16707.754382,
+    "cputime": 225187,
+    "maxmem": 372.52734375,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 17034.532464,
+    "cputime": 227164,
+    "maxmem": 392.9453125,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 25951.57263,
+    "cputime": 265460,
+    "maxmem": 367.9453125,
+    "application": "idrpred-round",
+    "threads": 16
+  },
+  {
+    "runtime": 220795.62283,
+    "cputime": 339509,
+    "maxmem": 463.01953125,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 215293.232121,
+    "cputime": 338481,
+    "maxmem": 355.6015625,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 201890.164244,
+    "cputime": 334578,
+    "maxmem": 509.98828125,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 232304.438167,
+    "cputime": 327942,
+    "maxmem": 511.828125,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 228937.398311,
+    "cputime": 334216,
+    "maxmem": 356.26171875,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 230483.066874,
+    "cputime": 337426,
+    "maxmem": 494.62890625,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 323264.557235,
+    "cputime": 663591,
+    "maxmem": 416.0,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 316811.848116,
+    "cputime": 633794,
+    "maxmem": 541.98828125,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 272907.918834,
+    "cputime": 633921,
+    "maxmem": 489.16796875,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 281183.503205,
+    "cputime": 633446,
+    "maxmem": 495.05859375,
+    "application": "mobidb-lite-3.10",
+    "threads": 16
+  },
+  {
+    "runtime": 327654.982766,
+    "cputime": 617782,
+    "maxmem": 543.47265625,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 195475.022964,
+    "cputime": 320548,
+    "maxmem": 444.51953125,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 225065.707749,
+    "cputime": 317700,
+    "maxmem": 576.171875,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 254521.908586,
+    "cputime": 326086,
+    "maxmem": 438.5390625,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 207220.125664,
+    "cputime": 316922,
+    "maxmem": 468.30078125,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 233344.428026,
+    "cputime": 314515,
+    "maxmem": 302.75390625,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 359057.871919,
+    "cputime": 653783,
+    "maxmem": 574.3125,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 330988.899275,
+    "cputime": 627699,
+    "maxmem": 478.0859375,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 348546.244582,
+    "cputime": 622846,
+    "maxmem": 457.52734375,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  },
+  {
+    "runtime": 321497.402025,
+    "cputime": 641795,
+    "maxmem": 466.06640625,
+    "application": "mobidb-lite-3.2",
+    "threads": 16
+  }
+]
