@@ -10,13 +10,13 @@ The main advantage of IDRPred is that it only requires Python 3 while MobiDB-li
 ## Installation
 
 ```sh
-$ pip install git+https://github.com/matthiasblum/idrpred
+pip install git+https://github.com/matthiasblum/idrpred
 ```
 
 ## Usage
 
 ```sh
-$ idrpred [options] [infile] [outfile]
+idrpred [options] [infile] [outfile]
 ```
 
 Positional arguments:
