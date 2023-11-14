@@ -75,8 +75,8 @@ def main():
                         help="Round scores before threshold checks, "
                              "like MobiDB-lite.")
     parser.add_argument("--tempdir", metavar="DIRECTORY", default=gettempdir(),
-                        help=f"Directory to use for temporary files, "
-                             f"default: {gettempdir()}.")
+                        help=(f"Directory to use for temporary files, "
+                              f"default: {gettempdir()}."))
     parser.add_argument("--threads", type=int, default=1,
                         help="Mumber of parallel threads, default: 1.")
     args = parser.parse_args()
@@ -96,3 +96,7 @@ def main():
 
             for start, end, feature in regions:
                 outfile.write(f"{seq_id}\t{start}\t{end}\t{feature}\n")
+
+
+if __name__ == "__main__":
+    main()
