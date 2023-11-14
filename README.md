@@ -80,7 +80,7 @@ Wall clock time to annotate common proteomes using one thread:
 
 #### Multithreaded
 
-Wall clock time to annotate common proteomes using eight thread:
+Wall clock time to annotate common proteomes using eight threads:
 
 <p align="center">
     <img alt="multi-thread-benchmark" src="benchmarks/runtime-8-threads.png" style="width: 80%;">
