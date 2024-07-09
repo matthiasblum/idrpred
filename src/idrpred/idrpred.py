@@ -67,10 +67,10 @@ def main():
     parser.add_argument("--force", action="store_true", default=False,
                         help="Generate consensus as long as at least "
                              "one predictor did not fail.")
-    parser.add_argument("--no-seg", dest="run_seg",
+    parser.add_argument("--skip-features", dest="find_features",
                         action="store_false", default=True,
-                        help="Do not indentify domains "
-                             "of low complexity with SEG.")
+                        help="Do not indentify sequence features, "
+                             "such as domains of low complexity.")
     parser.add_argument("--round", action="store_true", default=False,
                         help="Round scores before threshold checks, "
                              "like MobiDB-lite.")
@@ -78,7 +78,7 @@ def main():
                         help=(f"Directory to use for temporary files, "
                               f"default: {gettempdir()}."))
     parser.add_argument("--threads", type=int, default=1,
-                        help="Mumber of parallel threads, default: 1.")
+                        help="Number of parallel threads, default: 1.")
     args = parser.parse_args()
 
     root = os.path.abspath(os.path.dirname(script))
@@ -88,7 +88,9 @@ def main():
         for seq_id, regions in run(args.infile, bindir, args.threads,
                                    force=args.force,
                                    round=args.round,
-                                   seg=args.run_seg,
+                                   find_features=args.find_features,
+                                   merge_features=True,
+                                   keep_non_idr_features=False,
                                    tempdir=args.tempdir):
             if regions is None:
                 sys.stderr.write(f"error in {seq_id}\n")

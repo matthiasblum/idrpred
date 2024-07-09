@@ -43,12 +43,16 @@ _FEATURES = [
 def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
     force_consensus = kwargs.get("force", False)
     round_score = kwargs.get("round", False)
-    run_seg = kwargs.get("seg", True)
+    find_features = kwargs.get("find_features", True)
+    merge_features = kwargs.get("merge_features", True)
+    keep_non_idr_features = kwargs.get("keep_non_idr_features", False)
     tempdir = kwargs.get("tempdir")
     threshold = kwargs.get("threshold", _THRESHOLDS["mobidblite"])
 
     seq_length = len(sequence)
-    scores = run_predictors(sequence, bindir, seg=run_seg, tempdir=tempdir)
+    scores = run_predictors(sequence, bindir,
+                            find_features=find_features,
+                            tempdir=tempdir)
 
     # SEG: not considered for consensus
     seg_scores = scores.pop("seg", [])
@@ -94,7 +98,8 @@ def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
     results = []
     if regions:
         if len(sequence) == len(seg_scores):
-            features = get_region_features(sequence, seg_scores)
+            features = get_region_features(sequence, seg_scores, merge_features,
+                                           keep_non_idr_features)
         else:
             features = None
 
@@ -113,7 +118,7 @@ def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
 
 def run_predictors(sequence: str, bindir: str, **kwargs) -> dict:
     tempdir = kwargs.get("tempdir")
-    run_seg = kwargs.get("seg", True)
+    find_features = kwargs.get("find_features", True)
 
     fd, disbin = mkstemp(dir=tempdir)
     with open(fd, "wt") as fh:
@@ -139,7 +144,7 @@ def run_predictors(sequence: str, bindir: str, **kwargs) -> dict:
 
     os.unlink(disbin)
 
-    if run_seg:
+    if find_features:
         fd, fasta = mkstemp(dir=tempdir)
         with open(fd, "wt") as fh:
             fh.write(f">1\n{sequence}\n")
@@ -223,7 +228,9 @@ def get_regions(states: Union[list, str], min_length: int) -> list:
     return regions
 
 
-def get_region_features(sequence: str, seg_scores: list) -> list:
+def get_region_features(sequence: str, seg_scores: list,
+                        merge_features: bool = True,
+                        keep_non_idr_features: bool = False) -> list:
     threshold = _THRESHOLDS["seg"]
     seg_states = [s >= threshold for s in seg_scores]
 
@@ -295,15 +302,19 @@ def get_region_features(sequence: str, seg_scores: list) -> list:
         if state:
             all_features[state][i] = _POSITIVE_FLAG
 
+    # Merge features, hierarchically (from Polar to Polyampholyte)
     for state in reversed(_FEATURES):
         states = "".join(all_features[state])
         states = dilate(states, max_length=5)
         states = erode(states, max_length=5)
 
-        # index = str(_FEATURES.index(state) + 1)
-        for i, flag in enumerate(states):
-            if flag == _POSITIVE_FLAG:
-                features[i] = state
+        if merge_features:
+            for i, flag in enumerate(states):
+                if flag == _POSITIVE_FLAG:
+                    features[i] = state
+        else:
+            # todo
+            raise NotImplementedError
 
     return features
 
