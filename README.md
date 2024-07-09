@@ -13,6 +13,10 @@ The main advantage of IDRPred is that it only requires Python 3 while MobiDB-li
 pip install git+https://github.com/matthiasblum/idrpred
 ```
 
+### Docker
+
+A Docker image ofr `idrpred` is available from [Docker Hub](https://hub.docker.com/r/matblum/idrpred).
+
 ## Usage
 
 ```sh
