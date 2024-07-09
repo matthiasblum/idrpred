@@ -30,13 +30,13 @@ Positional arguments:
 
 ### Available options
 
-| Options          | Description                                                                                     |
-|------------------|-------------------------------------------------------------------------------------------------|
-| `--force`        | Derive a consensus as long as one predictor did not fail                                        |
-| `--no-seg`       | Do not indentify domains of low complexity with SEG                                             |
-| `--round`        | Round scores reported by individual predictors, like MobiDB-lite does                           |
-| `--tempdir PATH` | Create temporary files in PATH, instead of the default temporary directory (most likely `/tmp`) |
-| `--threads N`    | Process up to `N` sequences concurrently, default: `1`                                          |
+| Options           | Description                                                                                     |
+|-------------------|-------------------------------------------------------------------------------------------------|
+| `--force`         | Derive a consensus as long as one predictor did not fail                                        |
+| `--skip-features` | Do not indentify sequence features, such as domains of low complexity                           |
+| `--round`         | Round scores reported by individual predictors, like MobiDB-lite does                           |
+| `--tempdir PATH`  | Create temporary files in PATH, instead of the default temporary directory (most likely `/tmp`) |
+| `--threads N`     | Process up to `N` sequences concurrently, default: `1`                                          |
 
 ## Predictors
 
