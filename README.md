@@ -15,7 +15,7 @@ pip install git+https://github.com/matthiasblum/idrpred
 
 ### Docker
 
-A Docker image ofr `idrpred` is available from [Docker Hub](https://hub.docker.com/r/matblum/idrpred).
+A Docker image of `idrpred` is available from [Docker Hub](https://hub.docker.com/r/matblum/idrpred).
 
 ## Usage
 
