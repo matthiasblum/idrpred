@@ -1,5 +1,7 @@
 # IDRPred
 
+[![DOI](https://zenodo.org/badge/713631556.svg)](https://zenodo.org/doi/10.5281/zenodo.13356721)
+
 IDRPred is a modern implementation of [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite)[1], 
 a method for identifying intrinsically disordered regions (IDRs) in proteins.
 MobiDB-lite uses multiple predictors to derive a consensus, which is filtered 
