@@ -97,7 +97,7 @@ def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
     regions = get_regions(states, min_length=20)
     results = []
     if regions:
-        if len(sequence) == len(seg_scores):
+        if seg_scores is not None and len(sequence) == len(seg_scores):
             features = get_region_features(sequence, seg_scores, merge_features,
                                            keep_non_idr_features)
         else:
