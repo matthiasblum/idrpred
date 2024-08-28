@@ -2,7 +2,7 @@ import os
 from subprocess import DEVNULL, PIPE, Popen
 
 
-def run(bindir: str, file: str):
+def run(bindir: str, file: str) -> list[int] | None:
     cmd = [
         os.path.join(bindir, "seg"),
         file,
