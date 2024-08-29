@@ -5,7 +5,7 @@ description = "A consensus-based predictor of intrinsically disordered regions i
 readme = "README.md"
 license = {file = "LICENSE.md"}
 authors = [
-  {name = "Matthias Blum", email = "mblum@ebi.ac.uk", orcid="0000-0001-5773-4724"},
+  {name = "Matthias Blum", email = "mblum@ebi.ac.uk"},
 ]
 requires-python = ">=3.8"
 dependencies = []
