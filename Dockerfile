@@ -4,4 +4,3 @@ RUN wget -O idrpred.zip https://github.com/matthiasblum/idrpred/archive/refs/tag
 RUN unzip idrpred.zip
 RUN pip install idrpred-1.0.1/
 RUN rm -r idrpred*
-ENTRYPOINT ["idrpred"]
