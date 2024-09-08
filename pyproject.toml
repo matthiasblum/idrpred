@@ -1,6 +1,6 @@
 [project]
 name = "idrpred"
-version = "1.0.1"
+version = "1.0.2"
 description = "A consensus-based predictor of intrinsically disordered regions in proteins."
 readme = "README.md"
 license = {file = "LICENSE.md"}
