@@ -1,7 +1,7 @@
 # IDRPred
 
 [![DOI](https://zenodo.org/badge/713631556.svg)](https://zenodo.org/doi/10.5281/zenodo.13356721)
-![Docker Image Version (tag)](https://img.shields.io/docker/v/matblum/idrpred/latest?label=Docker)
+[![Docker Image Version (tag)](https://img.shields.io/docker/v/matblum/idrpred/latest?label=Docker)](https://hub.docker.com/r/matblum/idrpred)
 
 IDRPred is a modern implementation of [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite)[1], 
 a method for identifying intrinsically disordered regions (IDRs) in proteins.
