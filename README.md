@@ -3,18 +3,18 @@
 [![DOI](https://zenodo.org/badge/713631556.svg)](https://zenodo.org/doi/10.5281/zenodo.13356721)
 [![Docker Image Version (tag)](https://img.shields.io/docker/v/matblum/idrpred/latest?label=Docker)](https://hub.docker.com/r/matblum/idrpred)
 
-IDRPred is a modern implementation of [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite)[1], 
+IDRPred is an alternative implementation of [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite)[1], 
 a method for identifying intrinsically disordered regions (IDRs) in proteins.
 MobiDB-lite uses multiple predictors to derive a consensus, which is filtered 
 for spurious short predictions in a second step.
-
-The main advantage of IDRPred is that it only requires Python 3 while MobiDB-lite requires both Python 2 and 3.
 
 ## Installation
 
 ```sh
 pip install git+https://github.com/matthiasblum/idrpred
 ```
+
+Building from source requires a C compiler.
 
 ### Docker
 
@@ -33,13 +33,10 @@ Positional arguments:
 
 ### Available options
 
-| Options           | Description                                                                                     |
-|-------------------|
-| `--force`         | Derive a consensus as long as one predictor did not fail                                        |
-| `--format FORMAT` | Output format: `regions` (default) or `caid` (per-residue scores, see below)                    |
-| `--skip-features` | Do not indentify sequence features, such as domains of low complexity                           |
-| `--tempdir PATH`  | Create temporary files in PATH, instead of the default temporary directory (most likely `/tmp`) |
-| `--threads N`     | Process up to `N` sequences concurrently, default: `1`                                          |
+| Options           | Description                                                                  |
+|-------------------|------------------------------------------------------------------------------|
+| `--format FORMAT` | Output format: `regions` (default) or `caid` (per-residue scores, see below) |
+| `--threads N`     | Process up to `N` sequences concurrently, default: `1`                       |
 
 ### Output formats
 
@@ -69,60 +66,28 @@ and the state is `1` if the residue belongs to a disordered region reported in t
 Only predictors whose licence authorises distribution have been included in IDRPred.
 
 | Method           | Reference |  Available  |
-|------------------|----------:|
-| ANCHOR           |       [2] |      ❌      |
-| DisEMBL-465 	    |       [3] |      ✔      |
+|------------------|----------:|:-----------:|
+| ANCHOR           |       [2] |      ❌     |
+| DisEMBL-465 	   |       [3] |      ✔      |
 | DisEMBL-HotLoops |       [3] |      ✔      |
-| DynaMine         |       [4] |      ❌      |
+| DynaMine         |       [4] |      ❌     |
 | ESpritz-DisProt  |       [5] |      ✔      |
 | ESpritz-NMR      |       [5] |      ✔      |
 | ESpritz-Xray     |       [5] |      ✔      |
-| FeSS             |       [6] |      ❌      |
+| FeSS             |       [6] |      ❌     |
 | GlobPlot         |       [7] |      ✔      |
 | IUPred-Long      |       [8] |      ✔      |
 | IUPred-Short     |       [8] |      ✔      |
-| JRONN            |       [9] |      ❌      |
-| Pfilt            |      [10] |      ❌      |
+| JRONN            |       [9] |      ❌     |
+| Pfilt            |      [10] |      ❌     |
 | SEG              |      [11] |      ✔      |
-| VSL2b            |      [12] |      ❌      |
+| VSL2b            |      [12] |      ❌     |
 
-## Comparison
-
-### Annotations
-
-| Reference proteome | Sequences | Default options                                |
-|--------------------|----------:|------------------------------------------------|
-| *A. thaliana*      |    39,320 | ![](benchmarks/a-thaliana/predictions.png)     |
-| *D. melanogaster*  |    26,706 | ![](benchmarks/d-melanogaster/predictions.png) |
-| *E. Coli*          |     4,403 | ![](benchmarks/e-coli/predictions.png)         |
-| *H. Sapiens*       |    82,492 | ![](benchmarks/h-sapiens/predictions.png)      |
-| *S. cerevisiae*    |     6,060 | ![](benchmarks/s-cerevisiae/predictions.png)   |
-
-### Performances
-
-#### Single-threaded
-
-Wall clock time to annotate common proteomes using one thread:
-
-<p align="center">
-    <img alt="single-thread-benchmark" src="benchmarks/runtime-1-thread.png" style="width: 80%;">
-</p>
-
-#### Multithreaded
-
-Wall clock time to annotate common proteomes using eight threads:
-
-<p align="center">
-    <img alt="multi-thread-benchmark" src="benchmarks/runtime-8-threads.png" style="width: 80%;">
-</p>
-
-Wall clock time to annotate one million sequences 
-randomly selected from [UniParc](https://www.uniprot.org/uniparc/) 
-using sixteen threads:
-
-<p align="center">
-    <img alt="multi-thread-benchmark" src="benchmarks/runtime-16-threads.png" style="width: 80%;">
-</p>
+The predictors are reimplemented from the source code of the original programs 
+(DisEMBL, IUPred, SEG, and the Savitzky-Golay filter of [TISEAN](https://www.pks.mpg.de/tisean/) used by DisEMBL and GlobPlot), 
+and use their original parameters, weights, and models.
+No source code is available for ESpritz: it was reimplemented from the original binaries, 
+and uses the original models.
 
 ## References
 

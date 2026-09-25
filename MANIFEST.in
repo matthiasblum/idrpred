@@ -1,2 +1,4 @@
-recursive-include src/ *
-recursive-exclude src/ *.zip
+recursive-include src/idrpred *.pyx *.h
+recursive-include src/idrpred/data *
+include src/idrpred/predictors/_disembl/LICENSE
+global-exclude *.c *.so *.pyc

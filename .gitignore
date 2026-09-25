@@ -1,0 +1,6 @@
+src/idrpred/predictors/*.c
+*.so
+build/
+*.egg-info/
+__pycache__/
+.pytest_cache/

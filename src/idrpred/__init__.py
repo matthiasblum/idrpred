@@ -1,20 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/matthiasblum/idrpred/blob/main/LICENSE
-# Copyright (c) Matthias Blum <mblum@ebi.ac.uk>
 
 import math
-import os
 import re
 import sys
 from dataclasses import dataclass
-from tempfile import mkstemp
 from typing import List, Optional, Union
 
-from . import disembl
-from . import espritz
-from . import globplot
-from . import iupred
-from . import seg
+from .predictors import disembl, espritz, globplot, iupred, seg
 
 
 _THRESHOLDS = {
@@ -61,17 +54,13 @@ def _get_states(pred_name: str, scores: List[float]) -> str:
                    for score in scores)
 
 
-def predict(sequence_id: str, sequence: str, bindir: str,
-            **kwargs) -> Optional[Prediction]:
+def predict(sequence_id: str, sequence: str, **kwargs) -> Optional[Prediction]:
     force_consensus = kwargs.get("force", False)
     find_features = kwargs.get("find_features", True)
-    tempdir = kwargs.get("tempdir")
     threshold = kwargs.get("threshold", _THRESHOLDS["mobidblite"])
 
     seq_length = len(sequence)
-    scores = run_predictors(sequence, bindir,
-                            find_features=find_features,
-                            tempdir=tempdir)
+    scores = run_predictors(sequence, find_features=find_features)
 
     # SEG: not considered for consensus
     seg_scores = scores.pop("seg", None)
@@ -144,41 +133,21 @@ def predict(sequence_id: str, sequence: str, bindir: str,
                       consensus_states="".join(consensus_states))
 
 
-def run_predictors(sequence: str, bindir: str, **kwargs) -> dict:
-    tempdir = kwargs.get("tempdir")
-    find_features = kwargs.get("find_features", True)
-
-    fd, disbin = mkstemp(dir=tempdir)
-    with open(fd, "wt") as fh:
-        fh.write(f"1\n{len(sequence)}\n{sequence}")
-
-    hot_loop, remark_465 = disembl.run(os.path.join(bindir, "DisEMBL"),
-                                       os.path.join(bindir, "TISEAN"),
-                                       sequence)
-
+def run_predictors(sequence: str, find_features: bool = True) -> dict:
+    hot_loops, remark_465 = disembl.predict(sequence)
     results = {
-        "disembl-hl": hot_loop,
+        "disembl-hl": hot_loops,
         "disembl-rem465": remark_465,
-        "espritz-d": espritz.run_espritz_d(os.path.join(bindir, "ESpritz"),
-                                           disbin),
-        "espritz-n": espritz.run_espritz_n(os.path.join(bindir, "ESpritz"),
-                                           disbin),
-        "espritz-x": espritz.run_espritz_x(os.path.join(bindir, "ESpritz"),
-                                           disbin),
-        "globplot": globplot.run(os.path.join(bindir, "TISEAN"), sequence),
-        "iupred-l": iupred.run_long(os.path.join(bindir, "IUPred"), sequence),
-        "iupred-s": iupred.run_short(os.path.join(bindir, "IUPred"), sequence),
+        "espritz-d": espritz.predict_disprot(sequence),
+        "espritz-n": espritz.predict_nmr(sequence),
+        "espritz-x": espritz.predict_xray(sequence),
+        "globplot": globplot.predict(sequence),
+        "iupred-l": iupred.predict_long(sequence),
+        "iupred-s": iupred.predict_short(sequence),
     }
 
-    os.unlink(disbin)
-
     if find_features:
-        fd, fasta = mkstemp(dir=tempdir)
-        with open(fd, "wt") as fh:
-            fh.write(f">1\n{sequence}\n")
-
-        results["seg"] = seg.run(os.path.join(bindir, "SEG"), fasta)
-        os.unlink(fasta)
+        results["seg"] = seg.predict(sequence)
 
     return results
 

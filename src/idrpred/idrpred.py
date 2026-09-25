@@ -1,12 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/matthiasblum/idrpred/blob/main/LICENSE
-# Copyright (c) Matthias Blum <mblum@ebi.ac.uk>
 
 import os
 import sys
 from argparse import ArgumentParser
 from contextlib import contextmanager
-from tempfile import gettempdir
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from . import predict
@@ -39,13 +37,12 @@ def parse_fasta(file: str):
         yield seq_id, sequence.upper()
 
 
-def run(file: str, bindir: str, threads: int, **kwargs):
+def run(file: str, threads: int, **kwargs):
     if threads > 1:
         with ThreadPoolExecutor(max_workers=threads) as executor:
             fs = {}
             for seq_id, sequence in parse_fasta(file):
-                f = executor.submit(predict, seq_id, sequence, bindir,
-                                    **kwargs)
+                f = executor.submit(predict, seq_id, sequence, **kwargs)
                 fs[f] = (seq_id, sequence)
 
                 if len(fs) == 1000:
@@ -60,8 +57,7 @@ def run(file: str, bindir: str, threads: int, **kwargs):
                 yield seq_id, sequence, f.result()
     else:
         for seq_id, sequence in parse_fasta(file):
-            yield seq_id, sequence, predict(seq_id, sequence, bindir,
-                                            **kwargs)
+            yield seq_id, sequence, predict(seq_id, sequence, **kwargs)
 
 
 def main():
@@ -87,9 +83,6 @@ def main():
                         help="Output format: disordered regions and their "
                              "features (default), or per-residue scores "
                              "and states in CAID format.")
-    parser.add_argument("--tempdir", metavar="DIRECTORY", default=gettempdir(),
-                        help=(f"Directory to use for temporary files, "
-                              f"default: {gettempdir()}."))
     parser.add_argument("--threads", type=int, default=1,
                         help="Number of parallel threads, default: 1.")
     args = parser.parse_args()
@@ -97,16 +90,12 @@ def main():
     if args.infile != "-" and not os.path.isfile(args.infile):
         parser.error(f"cannot open '{args.infile}': no such file")
 
-    root = os.path.abspath(os.path.dirname(script))
-    bindir = os.path.join(root, "bin")
-
     with open_file(args.outfile, "wt") as outfile:
         for seq_id, sequence, prediction in run(
-                args.infile, bindir, args.threads,
+                args.infile, args.threads,
                 force=args.force,
                 find_features=(args.find_features
-                               and args.format == "regions"),
-                tempdir=args.tempdir):
+                               and args.format == "regions")):
             if prediction is None:
                 print(f"error in {seq_id}", file=sys.stderr)
                 continue
