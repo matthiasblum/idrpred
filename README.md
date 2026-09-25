@@ -34,19 +34,42 @@ Positional arguments:
 ### Available options
 
 | Options           | Description                                                                                     |
-|-------------------|-------------------------------------------------------------------------------------------------|
+|-------------------|
 | `--force`         | Derive a consensus as long as one predictor did not fail                                        |
+| `--format FORMAT` | Output format: `regions` (default) or `caid` (per-residue scores, see below)                    |
 | `--skip-features` | Do not indentify sequence features, such as domains of low complexity                           |
-| `--round`         | Round scores reported by individual predictors, like MobiDB-lite does                           |
 | `--tempdir PATH`  | Create temporary files in PATH, instead of the default temporary directory (most likely `/tmp`) |
 | `--threads N`     | Process up to `N` sequences concurrently, default: `1`                                          |
+
+### Output formats
+
+#### Regions (default)
+
+One line per region: sequence ID, start, end (1-based, inclusive), and feature.
+Intrinsically disordered regions have the feature `-`, and are followed by the sequence features found within them.
+Composition-based features (polyampholyte, polyelectrolytes, cystein/proline/glycine-rich, polar) are mutually exclusive, 
+while `Low complexity` regions, identified by SEG, are reported independently and may overlap them.
+
+#### CAID
+
+Per-residue scores and states, following the format of the [Critical Assessment of protein Intrinsic Disorder](https://caid.idpcentral.org/):
+
+```
+>sequence ID
+1	M	0.875	1
+2	S	0.750	1
+```
+
+Columns are the position, the residue, the score, and the binary state (`1`: disordered).
+The score is the fraction of predictors agreeing that the residue is disordered, 
+and the state is `1` if the residue belongs to a disordered region reported in the `regions` format.
 
 ## Predictors
 
 Only predictors whose licence authorises distribution have been included in IDRPred.
 
 | Method           | Reference |  Available  |
-|------------------|----------:|:-----------:|
+|------------------|----------:|
 | ANCHOR           |       [2] |      ❌      |
 | DisEMBL-465 	    |       [3] |      ✔      |
 | DisEMBL-HotLoops |       [3] |      ✔      |
@@ -67,13 +90,13 @@ Only predictors whose licence authorises distribution have been included in IDRP
 
 ### Annotations
 
-| Reference proteome | Sequences | Default options                                | IDRPred: `--round` option                            |
-|--------------------|----------:|------------------------------------------------|------------------------------------------------------|
-| *A. thaliana*      |    39,320 | ![](benchmarks/a-thaliana/predictions.png)     | ![](benchmarks/a-thaliana/predictions-round.png)     |
-| *D. melanogaster*  |    26,706 | ![](benchmarks/d-melanogaster/predictions.png) | ![](benchmarks/d-melanogaster/predictions-round.png) |
-| *E. Coli*          |     4,403 | ![](benchmarks/e-coli/predictions.png)         | ![](benchmarks/e-coli/predictions-round.png)         |
-| *H. Sapiens*       |    82,492 | ![](benchmarks/h-sapiens/predictions.png)      | ![](benchmarks/h-sapiens/predictions-round.png)      |
-| *S. cerevisiae*    |     6,060 | ![](benchmarks/s-cerevisiae/predictions.png)   | ![](benchmarks/s-cerevisiae/predictions-round.png)   |
+| Reference proteome | Sequences | Default options                                |
+|--------------------|----------:|------------------------------------------------|
+| *A. thaliana*      |    39,320 | ![](benchmarks/a-thaliana/predictions.png)     |
+| *D. melanogaster*  |    26,706 | ![](benchmarks/d-melanogaster/predictions.png) |
+| *E. Coli*          |     4,403 | ![](benchmarks/e-coli/predictions.png)         |
+| *H. Sapiens*       |    82,492 | ![](benchmarks/h-sapiens/predictions.png)      |
+| *S. cerevisiae*    |     6,060 | ![](benchmarks/s-cerevisiae/predictions.png)   |
 
 ### Performances
 

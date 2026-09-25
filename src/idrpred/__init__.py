@@ -6,8 +6,9 @@ import math
 import os
 import re
 import sys
+from dataclasses import dataclass
 from tempfile import mkstemp
-from typing import Union
+from typing import List, Optional, Union
 
 from . import disembl
 from . import espritz
@@ -39,17 +40,31 @@ _FEATURES = [
     "Cystein-rich",
     "Proline-rich",
     "Glycine-rich",
-    "Low complexity",
     "Polar"
 ]
+_LOW_COMPLEXITY = "Low complexity"
 
 
-def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
+@dataclass
+class Prediction:
+    # 1-based (start, end, label) regions: IDRs ("-") and their features
+    regions: List[tuple]
+    # Per-residue fraction of predictors agreeing on disorder
+    consensus_scores: List[float]
+    # Per-residue final state: 1 if the residue is in a reported IDR
+    consensus_states: str
+
+
+def _get_states(pred_name: str, scores: List[float]) -> str:
+    threshold = _THRESHOLDS[pred_name]
+    return "".join(_POSITIVE_FLAG if score >= threshold else _NEGATIVE_FLAG
+                   for score in scores)
+
+
+def predict(sequence_id: str, sequence: str, bindir: str,
+            **kwargs) -> Optional[Prediction]:
     force_consensus = kwargs.get("force", False)
-    round_score = kwargs.get("round", False)
     find_features = kwargs.get("find_features", True)
-    merge_features = kwargs.get("merge_features", True)
-    keep_non_idr_features = kwargs.get("keep_non_idr_features", False)
     tempdir = kwargs.get("tempdir")
     threshold = kwargs.get("threshold", _THRESHOLDS["mobidblite"])
 
@@ -59,7 +74,7 @@ def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
                             tempdir=tempdir)
 
     # SEG: not considered for consensus
-    seg_scores = scores.pop("seg", [])
+    seg_scores = scores.pop("seg", None)
 
     agreement = [0] * seq_length
     num_indicators = 0
@@ -70,12 +85,9 @@ def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
             continue
 
         num_indicators += 1
-        pred_threshold = _THRESHOLDS[pred_name]
-        for i, score in enumerate(pred_scores):
-            if round_score:
-                score = round(score, 3)
-
-            if score >= pred_threshold:
+        states = _get_states(pred_name, pred_scores)
+        for i, flag in enumerate(states):
+            if flag == _POSITIVE_FLAG:
                 agreement[i] += 1
 
     if num_indicators == 0:
@@ -83,13 +95,11 @@ def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
     elif num_indicators < len(scores) and not force_consensus:
         return None
 
+    consensus_scores = []
     states = ""
     for s in agreement:
-        if round_score:
-            score = round(s / num_indicators, 3)
-        else:
-            score = s / num_indicators
-
+        score = s / num_indicators
+        consensus_scores.append(score)
         if score >= threshold:
             states += _POSITIVE_FLAG
         else:
@@ -100,24 +110,38 @@ def predict(sequence_id: str, sequence: str, bindir: str, **kwargs):
     states = merge_long_disordered_regions(states)
     regions = get_regions(states, min_length=20)
     results = []
-    if regions:
-        if seg_scores is not None and len(sequence) == len(seg_scores):
-            features = get_region_features(sequence, seg_scores, merge_features,
-                                           keep_non_idr_features)
+    consensus_states = [_NEGATIVE_FLAG] * seq_length
+
+    if find_features and regions:
+        features = get_composition_features(sequence)
+        if seg_scores is not None and len(seg_scores) == seq_length:
+            low_complexity = get_low_complexity(seg_scores)
         else:
-            features = None
+            low_complexity = None
+    else:
+        features = low_complexity = None
 
-        for start, end, _ in sorted(regions):
-            results.append((start + 1, end + 1, "-"))
+    for start, end, _ in sorted(regions):
+        results.append((start + 1, end + 1, "-"))
+        consensus_states[start:end + 1] = [_POSITIVE_FLAG] * (end - start + 1)
 
-            if features:
-                region = features[start:end + 1]
+        region_features = []
+        if features:
+            for i, j, state in get_regions(features[start:end + 1],
+                                           min_length=10):
+                region_features.append((start + 1 + i, start + 1 + j, state))
 
-                for i, j, state in get_regions(region, min_length=10):
-                    # state = _FEATURES[int(x)-1]
-                    results.append((start + 1 + i, start + 1 + j, state))
+        if low_complexity:
+            for i, j, _ in get_regions(low_complexity[start:end + 1],
+                                       min_length=10):
+                region_features.append((start + 1 + i, start + 1 + j,
+                                        _LOW_COMPLEXITY))
 
-    return results
+        results += sorted(region_features)
+
+    return Prediction(regions=results,
+                      consensus_scores=consensus_scores,
+                      consensus_states="".join(consensus_states))
 
 
 def run_predictors(sequence: str, bindir: str, **kwargs) -> dict:
@@ -232,12 +256,7 @@ def get_regions(states: Union[list, str], min_length: int) -> list:
     return regions
 
 
-def get_region_features(sequence: str, seg_scores: list,
-                        merge_features: bool = True,
-                        keep_non_idr_features: bool = False) -> list:
-    threshold = _THRESHOLDS["seg"]
-    seg_states = [s >= threshold for s in seg_scores]
-
+def get_composition_features(sequence: str) -> list:
     all_features = {}
     for state in _FEATURES:
         all_features[state] = [_NEGATIVE_FLAG] * len(sequence)
@@ -298,8 +317,6 @@ def get_region_features(sequence: str, seg_scores: list,
                 state = "Proline-rich"
             elif glycine / len(seq) >= 0.32:
                 state = "Glycine-rich"
-            elif seg_states[i]:
-                state = "Low complexity"
             elif polar / len(seq) >= 0.32:
                 state = "Polar"
 
@@ -312,15 +329,18 @@ def get_region_features(sequence: str, seg_scores: list,
         states = dilate(states, max_length=5)
         states = erode(states, max_length=5)
 
-        if merge_features:
-            for i, flag in enumerate(states):
-                if flag == _POSITIVE_FLAG:
-                    features[i] = state
-        else:
-            # todo
-            raise NotImplementedError
+        for i, flag in enumerate(states):
+            if flag == _POSITIVE_FLAG:
+                features[i] = state
 
     return features
+
+
+def get_low_complexity(seg_scores: list) -> str:
+    # Independent of composition features: may overlap them
+    states = _get_states("seg", seg_scores)
+    states = dilate(states, max_length=5)
+    return erode(states, max_length=5)
 
 
 def _bin(sequence: str, size: int):
@@ -335,7 +355,3 @@ def _bin(sequence: str, size: int):
             x = seq_length - (i + n) + 1
             yield i, sequence[i - n:] + sequence[::-1][1:x + 1]
 
-
-def is_enriched(sequence: str, residues: set, threshold: float = 0.32):
-    return len([aa for aa in sequence
-                if aa in residues]) / len(sequence) >= threshold
