@@ -1,6 +1,9 @@
-FROM python:3.12
+FROM python:3.12 AS build
+WORKDIR /src
+COPY . .
+RUN pip wheel --no-cache-dir --no-deps -w /wheels .
+
+FROM python:3.12-slim
 LABEL authors="Matthias Blum (mblum@ebi.ac.uk)"
-RUN wget -O idrpred.zip https://github.com/matthiasblum/idrpred/archive/refs/tags/1.0.3.zip
-RUN unzip idrpred.zip
-RUN pip install idrpred-1.0.3/
-RUN rm -r idrpred*
+COPY --from=build /wheels /wheels
+RUN pip install --no-cache-dir /wheels/*.whl && rm -rf /wheels

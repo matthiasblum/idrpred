@@ -1,0 +1,7 @@
+.git
+build/
+dist/
+*.egg-info/
+**/__pycache__/
+src/idrpred/predictors/*.c
+**/*.so
