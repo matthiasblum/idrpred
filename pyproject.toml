@@ -3,18 +3,18 @@ name = "idrpred"
 version = "2.0.0"
 description = "A consensus-based predictor of intrinsically disordered regions in proteins."
 readme = "README.md"
-license = {file = "LICENSE.md"}
+license = {file = "LICENSE"}
 authors = [
   {name = "Matthias Blum", email = "contact@matthiasblum.fr"},
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 dependencies = []
 
 [project.scripts]
 idrpred = "idrpred.idrpred:main"
 
 [build-system]
-requires = ["setuptools", "Cython>=3.0"]
+requires = ["setuptools>=69", "Cython>=3.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -22,3 +22,23 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 idrpred = ["data/**/*"]
+
+[[tool.setuptools.ext-modules]]
+name = "idrpred.predictors.smoothing"
+sources = ["src/idrpred/predictors/smoothing.pyx"]
+
+[[tool.setuptools.ext-modules]]
+name = "idrpred.predictors.disembl"
+sources = ["src/idrpred/predictors/disembl.pyx"]
+
+[[tool.setuptools.ext-modules]]
+name = "idrpred.predictors.iupred"
+sources = ["src/idrpred/predictors/iupred.pyx"]
+
+[[tool.setuptools.ext-modules]]
+name = "idrpred.predictors.seg"
+sources = ["src/idrpred/predictors/seg.pyx"]
+
+[[tool.setuptools.ext-modules]]
+name = "idrpred.predictors.espritz"
+sources = ["src/idrpred/predictors/espritz.pyx"]
