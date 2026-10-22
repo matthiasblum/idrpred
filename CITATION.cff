@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: IDRPred
+abstract: >-
+  A consensus-based predictor of intrinsically disordered regions in proteins,
+  implemented as an alternative to MobiDB-lite.
+authors:
+  - family-names: Blum
+    given-names: Matthias
+    email: contact@matthiasblum.fr
+    orcid: "https://orcid.org/0000-0001-5773-4724"
+version: 2.0.0
+repository-code: "https://github.com/matthiasblum/idrpred"
+license: GPL-2.0-only
+keywords:
+  - intrinsically disordered regions
+  - protein disorder prediction
+  - bioinformatics
