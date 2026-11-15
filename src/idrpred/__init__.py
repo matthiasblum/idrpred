@@ -30,7 +30,7 @@ _FEATURES = [
     "Polyampholyte",
     "Positive Polyelectrolyte",
     "Negative Polyelectrolyte",
-    "Cystein-rich",
+    "Cysteine-rich",
     "Proline-rich",
     "Glycine-rich",
     "Polar"
@@ -270,10 +270,10 @@ def get_composition_features(sequence: str) -> list:
                 raise ValueError(f"{seq}: {f_plus}, {f_minus}")
         else:
             # Weak polyampholyte/polyelectrolyte
-            cycstein = proline = glycine = polar = 0
+            cysteine = proline = glycine = polar = 0
             for aa in seq:
                 if aa == "C":
-                    cycstein += 1
+                    cysteine += 1
                 elif aa == "P":
                     proline += 1
                 elif aa == "G":
@@ -281,8 +281,8 @@ def get_composition_features(sequence: str) -> list:
                 elif aa in {"N", "Q", "S", "T"}:
                     polar += 1
 
-            if cycstein / len(seq) >= 0.32:
-                state = "Cystein-rich"
+            if cysteine / len(seq) >= 0.32:
+                state = "Cysteine-rich"
             elif proline / len(seq) >= 0.32:
                 state = "Proline-rich"
             elif glycine / len(seq) >= 0.32:

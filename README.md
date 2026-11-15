@@ -44,7 +44,7 @@ Positional arguments:
 
 One line per region: sequence ID, start, end (1-based, inclusive), and feature.
 Intrinsically disordered regions have the feature `-`, and are followed by the sequence features found within them.
-Composition-based features (polyampholyte, polyelectrolytes, cystein/proline/glycine-rich, polar) are mutually exclusive, 
+Composition-based features (polyampholyte, polyelectrolytes, cysteine/proline/glycine-rich, polar) are mutually exclusive, 
 while `Low complexity` regions, identified by SEG, are reported independently and may overlap them.
 
 #### CAID
