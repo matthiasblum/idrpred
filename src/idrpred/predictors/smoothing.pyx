@@ -77,13 +77,19 @@ def smooth(values, int derivative, int smooth_frame):
     of `smooth_frame` points on each side.
     Like TISEAN, the first/last `smooth_frame` values are left unfiltered
     (derivative = 0) or set to zero (derivative > 0).
-    Return None if the series is too short.
+    A series of one value is returned unfiltered (derivative = 0)
+    or set to zero (derivative > 0).
+    Return None if the parameters do not define a valid filter.
     """
     cdef Py_ssize_t n = len(values)
     if n < 2 * smooth_frame:
         smooth_frame = n // 2
     elif smooth_frame == 0:
         smooth_frame = 1
+
+    if smooth_frame == 0:
+        # At most one value: nothing to filter. Like the unfiltered edges: kept (derivative = 0) or set to zero.
+        return [float(v) for v in values] if derivative == 0 else [0.0] * n
 
     if _POWER >= 2 * smooth_frame + 1 or derivative > _POWER:
         # System is underdetermined
