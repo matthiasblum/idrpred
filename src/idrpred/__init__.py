@@ -59,6 +59,7 @@ def predict(sequence_id: str, sequence: str, **kwargs) -> Optional[Prediction]:
     find_features = kwargs.get("find_features", True)
     threshold = kwargs.get("threshold", _THRESHOLDS["mobidblite"])
 
+    sequence = sequence.upper()
     seq_length = len(sequence)
     scores = run_predictors(sequence, find_features=find_features)
 

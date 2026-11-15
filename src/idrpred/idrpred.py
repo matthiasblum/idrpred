@@ -27,14 +27,14 @@ def parse_fasta(file: str):
         for line in map(str.rstrip, fh):
             if line.startswith(">"):
                 if seq_id and sequence:
-                    yield seq_id, sequence.upper()
+                    yield seq_id, sequence
                 seq_id = line[1:].split()[0]
                 sequence = ""
             elif line:
                 sequence += line
 
     if seq_id and sequence:
-        yield seq_id, sequence.upper()
+        yield seq_id, sequence
 
 
 def run(file: str, threads: int, **kwargs):
