@@ -4,6 +4,7 @@
 import os
 import sys
 from argparse import ArgumentParser
+from collections import deque
 from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -24,13 +25,18 @@ def parse_fasta(file: str):
     seq_id = sequence = ""
 
     with open_file(file, "rt") as fh:
-        for line in map(str.rstrip, fh):
+        for i, line in enumerate(map(str.rstrip, fh), start=1):
             if line.startswith(">"):
                 if seq_id and sequence:
                     yield seq_id, sequence
-                seq_id = line[1:].split()[0]
+                fields = line[1:].split()
+                if not fields:
+                    raise ValueError(f"invalid FASTA: empty sequence identifier at line {i}")
+                seq_id = fields[0]
                 sequence = ""
             elif line:
+                if not seq_id:
+                    raise ValueError(f"invalid FASTA: sequence without identifier at line {i}")
                 sequence += line
 
     if seq_id and sequence:
@@ -40,20 +46,18 @@ def parse_fasta(file: str):
 def run(file: str, threads: int, **kwargs):
     if threads > 1:
         with ThreadPoolExecutor(max_workers=threads) as executor:
-            fs = {}
+            max_pending = max(1000, threads * 64)
+            pending = deque()
             for seq_id, sequence in parse_fasta(file):
                 f = executor.submit(predict, seq_id, sequence, **kwargs)
-                fs[f] = (seq_id, sequence)
+                pending.append((seq_id, sequence, f))
 
-                if len(fs) == 1000:
-                    for f in as_completed(fs):
-                        seq_id, sequence = fs[f]
-                        yield seq_id, sequence, f.result()
+                if len(pending) >= max_pending:
+                    seq_id, sequence, f = pending.popleft()
+                    yield seq_id, sequence, f.result()
 
-                    fs.clear()
-
-            for f in as_completed(fs):
-                seq_id, sequence = fs[f]
+            while pending:
+                seq_id, sequence, f = pending.popleft()
                 yield seq_id, sequence, f.result()
     else:
         for seq_id, sequence in parse_fasta(file):
@@ -91,25 +95,31 @@ def main():
         parser.error(f"cannot open '{args.infile}': no such file")
 
     with open_file(args.outfile, "wt") as outfile:
-        for seq_id, sequence, prediction in run(
-                args.infile, args.threads,
-                force=args.force,
-                find_features=(args.find_features
-                               and args.format == "regions")):
-            if prediction is None:
-                print(f"error in {seq_id}", file=sys.stderr)
-                continue
+        try:
+            write_prediction(args, outfile)
+        except ValueError as e:
+            sys.exit(f"{parser.prog}: error: {e}")
 
-            if args.format == "regions":
-                for start, end, feature in prediction.regions:
-                    outfile.write(f"{seq_id}\t{start}\t{end}\t{feature}\n")
-                continue
 
-            outfile.write(f">{seq_id}\n")
-            for i, (aa, score, state) in enumerate(
-                    zip(sequence, prediction.consensus_scores,
-                        prediction.consensus_states)):
+def write_prediction(args, outfile):
+    for seq_id, sequence, prediction in run(args.infile, args.threads,
+                                            force=args.force,
+                                            find_features=(args.find_features
+                                                           and args.format == "regions")):
+        if prediction is None:
+            print(f"error in {seq_id}", file=sys.stderr)
+            continue
+
+        if args.format == "regions":
+            for start, end, feature in prediction.regions:
+                outfile.write(f"{seq_id}\t{start}\t{end}\t{feature}\n")
+            return
+
+        outfile.write(f">{seq_id}\n")
+        for i, (aa, score, state) in enumerate(
+            zip(sequence, prediction.consensus_scores, prediction.consensus_states)):
                 outfile.write(f"{i + 1}\t{aa}\t{score:.3f}\t{state}\n")
+
 
 if __name__ == "__main__":
     main()
