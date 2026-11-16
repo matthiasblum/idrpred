@@ -3,7 +3,7 @@ name = "idrpred"
 version = "2.0.0"
 description = "A consensus-based predictor of intrinsically disordered regions in proteins."
 readme = "README.md"
-license = {file = "LICENSE"}
+license-files = ["LICENSE"]
 authors = [
   {name = "Matthias Blum", email = "contact@matthiasblum.fr"},
 ]
