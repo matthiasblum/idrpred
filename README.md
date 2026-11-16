@@ -37,6 +37,8 @@ Positional arguments:
 |-------------------|------------------------------------------------------------------------------|
 | `--format FORMAT` | Output format: `regions` (default) or `caid` (per-residue scores, see below) |
 | `--threads N`     | Process up to `N` sequences concurrently, default: `1`                       |
+| `--force`         | Report a consensus as long as at least one predictor succeeded               |
+| `--skip-features` | Do not identify sequence features (composition, low complexity) within IDRs  |
 
 ### Output formats
 
