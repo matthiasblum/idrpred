@@ -6,7 +6,7 @@ import sys
 from argparse import ArgumentParser
 from collections import deque
 from contextlib import contextmanager
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 from . import predict
 
@@ -113,7 +113,7 @@ def write_prediction(args, outfile):
         if args.format == "regions":
             for start, end, feature in prediction.regions:
                 outfile.write(f"{seq_id}\t{start}\t{end}\t{feature}\n")
-            return
+            continue
 
         outfile.write(f">{seq_id}\n")
         for i, (aa, score, state) in enumerate(
