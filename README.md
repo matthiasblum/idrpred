@@ -1,12 +1,18 @@
 # IDRPred
 
+[![Tests](https://github.com/matthiasblum/idrpred/actions/workflows/tests.yml/badge.svg)](https://github.com/matthiasblum/idrpred/actions/workflows/tests.yml)
 [![DOI](https://zenodo.org/badge/713631556.svg)](https://zenodo.org/doi/10.5281/zenodo.13356721)
 [![Docker Image Version (tag)](https://img.shields.io/docker/v/matblum/idrpred/latest?label=Docker)](https://hub.docker.com/r/matblum/idrpred)
 
-IDRPred is an alternative implementation of [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite)[1], 
+IDRPred is an alternative implementation of [MobiDB-lite](https://github.com/BioComputingUP/MobiDB-lite) 
+([Mehdiabadi , et al. 2025](https://doi.org/10.1093/bioinformatics/btaf297)), 
 a method for identifying intrinsically disordered regions (IDRs) in proteins.
 MobiDB-lite uses multiple predictors to derive a consensus, which is filtered 
 for spurious short predictions in a second step.
+
+MobiDB-lite runs the original predictors as external programs, starting about ten processes for each protein.
+IDRPred reimplements these predictors in C/Cython with no external programs and no dependencies.
+It reports the same disordered regions as MobiDB-lite, four to five times faster.
 
 ## Installation
 
@@ -29,25 +35,31 @@ idrpred [options] [infile] [outfile]
 Positional arguments:
 
 * `infile`: The FASTA file of sequences to process. If `-` or not specified, read from standard input.
-* `outfile`: The TSV file of predicted intrinsically disordered regions. If `-` or not specified, write to standard output.
+* `outfile`: The file of predicted intrinsically disordered regions. If `-` or not specified, write to standard output.
 
 ### Available options
 
-| Options           | Description                                                                  |
-|-------------------|------------------------------------------------------------------------------|
-| `--format FORMAT` | Output format: `regions` (default) or `caid` (per-residue scores, see below) |
-| `--threads N`     | Process up to `N` sequences concurrently, default: `1`                       |
-| `--force`         | Report a consensus as long as at least one predictor succeeded               |
-| `--skip-features` | Do not identify sequence features (composition, low complexity) within IDRs  |
+| Options           | Description                                                                         |
+|-------------------|-------------------------------------------------------------------------------------|
+| `--format FORMAT` | Output format: `regions` (default) or `caid` (per-residue scores, see below)        |
+| `--threads N`     | Process up to `N` sequences concurrently, default: `1`                              |
+| `--force`         | Report a consensus as long as at least one predictor succeeded                      |
+| `--skip-features` | Do not identify sequence features (composition, low complexity) within IDRs         |
+
+Results are written in the order of the input sequences, regardless of the number of threads.
 
 ### Output formats
 
 #### Regions (default)
 
 One line per region: sequence ID, start, end (1-based, inclusive), and feature.
-Intrinsically disordered regions have the feature `-`, and are followed by the sequence features found within them.
-Composition-based features (polyampholyte, polyelectrolytes, cysteine/proline/glycine-rich, polar) are mutually exclusive, 
-while `Low complexity` regions, identified by SEG, are reported independently and may overlap them.
+Intrinsically disordered regions have the feature `-`, and are followed by the sequence features found within them:
+
+* Composition features ([Das and Pappu 2013](https://doi.org/10.1073/pnas.1304749110)): 
+  `Polyampholyte`, `Positive Polyelectrolyte`, `Negative Polyelectrolyte`, `Cysteine-rich`, `Proline-rich`, `Glycine-rich`, and `Polar`.
+  They are mutually exclusive: each residue has at most one.
+* `Low complexity`: low-complexity regions identified by SEG ([Wootton 1994](https://doi.org/10.1016/0097-8485(94)85023-2)).
+  They are reported independently of composition features, and may overlap them.
 
 #### CAID
 
@@ -67,41 +79,27 @@ and the state is `1` if the residue belongs to a disordered region reported in t
 
 Only predictors whose licence authorises distribution have been included in IDRPred.
 
-| Method           | Reference |  Available  |
-|------------------|----------:|:-----------:|
-| ANCHOR           |       [2] |      ❌     |
-| DisEMBL-465 	   |       [3] |      ✔      |
-| DisEMBL-HotLoops |       [3] |      ✔      |
-| DynaMine         |       [4] |      ❌     |
-| ESpritz-DisProt  |       [5] |      ✔      |
-| ESpritz-NMR      |       [5] |      ✔      |
-| ESpritz-Xray     |       [5] |      ✔      |
-| FeSS             |       [6] |      ❌     |
-| GlobPlot         |       [7] |      ✔      |
-| IUPred-Long      |       [8] |      ✔      |
-| IUPred-Short     |       [8] |      ✔      |
-| JRONN            |       [9] |      ❌     |
-| Pfilt            |      [10] |      ❌     |
-| SEG              |      [11] |      ✔      |
-| VSL2b            |      [12] |      ❌     |
+| Method           | Reference                                                                 | Available |
+|------------------|---------------------------------------------------------------------------|:---------:|
+| ANCHOR           | [Dosztányi et al. 2009](https://doi.org/10.1093/bioinformatics/btp518)    |     ❌     |
+| DisEMBL-465      | [Linding et al. 2003](https://doi.org/10.1016/j.str.2003.10.002)          |     ✔     |
+| DisEMBL-HotLoops | [Linding et al. 2003](https://doi.org/10.1016/j.str.2003.10.002)          |     ✔     |
+| DynaMine         | [Cilia et al. 2013](https://doi.org/10.1038/ncomms3741)                   |     ❌     |
+| ESpritz-DisProt  | [Walsh et al. 2012](https://doi.org/10.1093/bioinformatics/btr682)        |     ✔     |
+| ESpritz-NMR      | [Walsh et al. 2012](https://doi.org/10.1093/bioinformatics/btr682)        |     ✔     |
+| ESpritz-Xray     | [Walsh et al. 2012](https://doi.org/10.1093/bioinformatics/btr682)        |     ✔     |
+| FeSS             | [Piovesan et al. 2017](https://doi.org/10.1093/bioinformatics/btx085)     |     ❌     |
+| GlobPlot         | [Linding et al. 2003](https://doi.org/10.1093/nar/gkg519)                 |     ✔     |
+| IUPred-Long      | [Mészáros et al. 2018](https://doi.org/10.1093/nar/gky384)                |     ✔     |
+| IUPred-Short     | [Mészáros et al. 2018](https://doi.org/10.1093/nar/gky384)                |     ✔     |
+| JRONN            | [Yang et al. 2005](https://doi.org/10.1093/bioinformatics/bti534)         |     ❌     |
+| Pfilt            | [Jones and Swindells 2002](https://doi.org/10.1016/s0968-0004(01)02039-4) |     ❌     |
+| SEG              | [Wootton 1994](https://doi.org/10.1016/0097-8485(94)85023-2)              |     ✔     |
+| VSL2b            | [Peng et al. 2006](https://doi.org/10.1186/1471-2105-7-208)               |     ❌     |
 
 The predictors are reimplemented from the source code of the original programs 
-(DisEMBL, IUPred, SEG, and the Savitzky-Golay filter of [TISEAN](https://www.pks.mpg.de/tisean/) used by DisEMBL and GlobPlot), 
+(DisEMBL, IUPred, SEG, and the Savitzky-Golay filter of [TISEAN](https://www.pks.mpg.de/tisean/) 
+([Hegger et al. 1999](https://doi.org/10.1063/1.166424)) used by DisEMBL and GlobPlot), 
 and use their original parameters, weights, and models.
 No source code is available for ESpritz: it was reimplemented from the original binaries, 
 and uses the original models.
-
-## References
-
-1. Necci M, Piovesan D, Clementel D, Dosztányi Z, Tosatto SCE. MobiDB-lite 3.0: fast consensus annotation of intrinsic disorder flavors in proteins. Bioinformatics. 2021 Apr 1;36(22-23):5533-5534. DOI: [10.1093/bioinformatics/btaa1045](https://doi.org/10.1093/bioinformatics/btaa1045). PMID: [33325498](https://europepmc.org/article/MED/33325498).
-2. Dosztányi Z, Mészáros B, Simon I. ANCHOR: web server for predicting protein binding regions in disordered proteins. Bioinformatics. 2009 Oct 15;25(20):2745-6. DOI: [10.1093/bioinformatics/btp518](https://doi.org/10.1093/bioinformatics/btp518). Epub 2009 Aug 28. PMID: [19717576](https://europepmc.org/article/MED/19717576); PMCID: PMC2759549.
-3. Linding R, Jensen LJ, Diella F, Bork P, Gibson TJ, Russell RB. Protein disorder prediction: implications for structural proteomics. Structure. 2003 Nov;11(11):1453-9. DOI: [10.1016/j.str.2003.10.002](https://doi.org/10.1016/j.str.2003.10.002). PMID: [14604535](https://europepmc.org/article/MED/14604535).
-4. Cilia E, Pancsa R, Tompa P, Lenaerts T, Vranken WF. From protein sequence to dynamics and disorder with DynaMine. Nat Commun. 2013;4:2741. DOI: [10.1038/ncomms3741](https://doi.org/10.1038/ncomms3741). PMID: [24225580](https://europepmc.org/article/MED/24225580).
-5. Walsh I, Martin AJ, Di Domenico T, Tosatto SC. ESpritz: accurate and fast prediction of protein disorder. Bioinformatics. 2012 Feb 15;28(4):503-9. DOI: [10.1093/bioinformatics/btr682](https://doi.org/10.1093/bioinformatics/btr682). Epub 2011 Dec 20. PMID: [22190692](https://europepmc.org/article/MED/22190692).
-6. Piovesan D, Walsh I, Minervini G, Tosatto SCE. FELLS: fast estimator of latent local structure. Bioinformatics. 2017 Jun 15;33(12):1889-1891. DOI: [10.1093/bioinformatics/btx085](https://doi.org/10.1093/bioinformatics/btx085). PMID: [28186245](https://europepmc.org/article/MED/28186245).
-7. Linding R, Russell RB, Neduva V, Gibson TJ. GlobPlot: Exploring protein sequences for globularity and disorder. Nucleic Acids Res. 2003 Jul 1;31(13):3701-8. DOI: [10.1093/nar/gkg519](https://doi.org/10.1093/nar/gkg519). PMID: [12824398](https://europepmc.org/article/MED/12824398); PMCID: PMC169197.
-8. Mészáros B, Erdos G, Dosztányi Z. IUPred2A: context-dependent prediction of protein disorder as a function of redox state and protein binding. Nucleic Acids Res. 2018 Jul 2;46(W1):W329-W337. DOI: [10.1093/nar/gky384](https://doi.org/10.1093/nar/gky384). PMID: [29860432](https://europepmc.org/article/MED/29860432); PMCID: PMC6030935.
-9. Yang ZR, Thomson R, McNeil P, Esnouf RM. RONN: the bio-basis function neural network technique applied to the detection of natively disordered regions in proteins. Bioinformatics. 2005 Aug 15;21(16):3369-76. DOI: [10.1093/bioinformatics/bti534](https://doi.org/10.1093/bioinformatics/bti534). Epub 2005 Jun 9. PMID: [15947016](https://europepmc.org/article/MED/15947016).
-10. Jones DT, Swindells MB. Getting the most from PSI-BLAST. Trends Biochem Sci. 2002 Mar;27(3):161-4. DOI: [10.1016/s0968-0004(01)02039-4](https://doi.org/10.1016/s0968-0004(01)02039-4). PMID: [11893514](https://europepmc.org/article/MED/11893514).
-11. Wootton JC. Non-globular domains in protein sequences: automated segmentation using complexity measures. Comput Chem. 1994 Sep;18(3):269-85. DOI: [10.1016/0097-8485(94)85023-2](https://doi.org/10.1016/0097-8485(94)85023-2). PMID: [7952898](https://europepmc.org/article/MED/7952898).
-12. Peng K, Radivojac P, Vucetic S, Dunker AK, Obradovic Z. Length-dependent prediction of protein intrinsic disorder. BMC Bioinformatics. 2006 Apr 17;7:208. DOI: [10.1186/1471-2105-7-208](https://doi.org/10.1186/1471-2105-7-208). PMID: [16618368](https://europepmc.org/article/MED/16618368); PMCID: PMC1479845.
