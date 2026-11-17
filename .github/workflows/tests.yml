@@ -1,0 +1,45 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.12", "3.13", "3.14"]
+        include:
+          # Apple Silicon: different compiler and CPU (arm64)
+          - os: macos-latest
+            python-version: "3.14"
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Build
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      # Tests run against the installed wheel, not the source tree
+      - name: Install
+        run: python -m pip install dist/*.whl pytest
+
+      - name: Test API
+        run: python -m pytest -v tests
+
+      - name: Test CLI
+        run: |
+          idrpred tests/data/yeast200.fasta regions.tsv
+          awk -F '\t' -v OFS='\t' '$4 == "-" { print $1, $2, $3 }' regions.tsv > idrs.tsv
+          diff tests/data/yeast200.mobidblite-4.0.idr.tsv idrs.tsv
