@@ -10,7 +10,7 @@ authors:
     given-names: Matthias
     email: contact@matthiasblum.fr
     orcid: "https://orcid.org/0000-0001-5773-4724"
-version: 2.0.0
+version: 2.0.1
 repository-code: "https://github.com/matthiasblum/idrpred"
 license: GPL-2.0-only
 keywords:
